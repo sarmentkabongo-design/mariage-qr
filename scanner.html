@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Scanner invitation</title>
+
+<link rel="stylesheet" href="style.css">
+
+
+<style>
+
+#passwordGate {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+}
+
+
+.password-card {
+
+    width: 100%;
+
+    max-width: 420px;
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 5px 25px rgba(0,0,0,0.15);
+
+    text-align: center;
+
+}
+
+
+.password-card h2 {
+
+    margin-bottom: 10px;
+
+}
+
+
+.password-card p {
+
+    color: #666;
+
+    margin-bottom: 20px;
+
+}
+
+
+.password-card input {
+
+    width: 100%;
+
+    padding: 13px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    margin-bottom: 12px;
+
+    font-size: 16px;
+
+}
+
+
+.password-card button {
+
+    width: 100%;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+}
+
+
+.password-error {
+
+    color: #dc3545;
+
+    margin-top: 12px;
+
+    font-weight: bold;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- PROTECTION PAR MOT DE PASSE -->
+
+<div id="passwordGate">
+
+    <div class="password-card">
+
+        <h2>Accès sécurisé</h2>
+
+        <p>
+            Entrez le mot de passe pour accéder au site.
+        </p>
+
+
+        <form id="passwordForm">
+
+            <input
+                type="password"
+                id="sitePassword"
+                placeholder="Mot de passe"
+                autocomplete="current-password"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="primary"
+            >
+                Accéder au site
+            </button>
+
+        </form>
+
+
+        <div
+            id="passwordError"
+            class="password-error"
+        ></div>
+
+    </div>
+
+</div>
+
+
+<!-- SCANNER -->
+
+<div id="siteApp" style="display:none;">
+
+
+<header>
+
+    <h1>
+        Scanner une invitation
+    </h1>
+
+    <p>
+        Vérification du QR code
+    </p>
+
+</header>
+
+
+<nav>
+
+    <a
+        href="index.html"
+        class="scanner-btn"
+    >
+        Accueil
+    </a>
+
+</nav>
+
+
+<main>
+
+
+<section class="card scanner-card">
+
+    <h2>
+        Scanner le QR code
+    </h2>
+
+
+    <div id="reader"></div>
+
+
+    <button
+        id="startCamera"
+        class="primary"
+    >
+        Démarrer la caméra
+    </button>
+
+
+    <button
+        id="stopCamera"
+        class="danger"
+    >
+        Arrêter
+    </button>
+
+
+    <hr>
+
+
+    <h3>
+        Ou sélectionner une photo du QR
+    </h3>
+
+
+    <input
+        type="file"
+        id="qrPhoto"
+        accept="image/*"
+        capture="environment"
+    >
+
+
+    <div id="scannerMessage"></div>
+
+</section>
+
+
+<section
+    id="resultat"
+    class="card result-card"
+    style="display:none;"
+>
+
+    <h2>
+        Invitation trouvée
+    </h2>
+
+
+    <div class="result-layout">
+
+
+        <div id="informationsInvitation"></div>
+
+
+        <div class="invitation-preview">
+
+            <div class="image-wrapper">
+
+                <img
+                    src="redi.PNG"
+                    alt="Invitation de mariage"
+                >
+
+                <div class="qr-highlight"></div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+</div>
+
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+
+<script>
+
+const MOT_DE_PASSE_SITE = "123sar456ent";
+
+const CLE_ACCES = "mariage_site_access";
+
+
+function chargerApplication() {
+
+    document.getElementById("passwordGate").style.display = "none";
+
+    document.getElementById("siteApp").style.display = "block";
+
+
+    const script = document.createElement("script");
+
+    script.type = "module";
+
+    script.src = "script.js";
+
+    document.body.appendChild(script);
+
+}
+
+
+if (sessionStorage.getItem(CLE_ACCES) === "1") {
+
+    chargerApplication();
+
+}
+
+
+document.getElementById("passwordForm").addEventListener("submit", function(e) {
+
+    e.preventDefault();
+
+
+    const password =
+        document.getElementById("sitePassword").value;
+
+
+    const error =
+        document.getElementById("passwordError");
+
+
+    if (password === MOT_DE_PASSE_SITE) {
+
+        sessionStorage.setItem(CLE_ACCES, "1");
+
+        chargerApplication();
+
+    } else {
+
+        error.textContent =
+            "Mot de passe incorrect.";
+
+        document.getElementById("sitePassword").value = "";
+
+        document.getElementById("sitePassword").focus();
+
+    }
+
+});
+
+</script>
+
+
+</body>
+
+</html>
