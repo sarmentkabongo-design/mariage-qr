@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestion des invitations - Mariage</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+#passwordGate {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.password-card {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    text-align: center;
+}
+
+.password-card h2 {
+    margin-bottom: 10px;
+}
+
+.password-card p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.password-card input {
+    width: 100%;
+    padding: 13px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.password-card button {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.password-error {
+    color: #dc3545;
+    margin-top: 12px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- PROTECTION PAR MOT DE PASSE -->
+<div id="passwordGate">
+
+    <div class="password-card">
+
+        <h2>Accès sécurisé</h2>
+
+        <p>Entrez le mot de passe pour accéder au site.</p>
+
+        <form id="passwordForm">
+
+            <input
+                type="password"
+                id="sitePassword"
+                placeholder="Mot de passe"
+                autocomplete="current-password"
+                required
+            >
+
+            <button type="submit" class="primary">
+                Accéder au site
+            </button>
+
+        </form>
+
+        <div id="passwordError" class="password-error"></div>
+
+    </div>
+
+</div>
+
+
+<!-- SITE -->
+<div id="siteApp" style="display:none;">
+
+<header>
+    <h1>Gestion des invitations</h1>
+    <p>Création et gestion des QR codes</p>
+</header>
+
+<nav>
+
+    <button onclick="showPage('creation')">
+        Créer
+    </button>
+
+    <button onclick="showPage('liste')">
+        Invitations
+    </button>
+
+    <a href="scanner.html" class="scanner-btn">
+        Scanner
+    </a>
+
+</nav>
+
+
+<main>
+
+<section id="creation" class="page active">
+
+    <div class="card">
+
+        <h2>Créer une invitation</h2>
+
+        <form id="invitationForm">
+
+            <label>Nom de l'invité</label>
+
+            <input
+                type="text"
+                id="nom"
+                required
+            >
+
+
+            <label>Numéro de téléphone</label>
+
+            <input
+                type="tel"
+                id="telephone"
+                required
+            >
+
+
+            <label>Nombre de personnes</label>
+
+            <input
+                type="number"
+                id="personnes"
+                min="1"
+                value="1"
+                required
+            >
+
+
+            <label>Type d'invitation</label>
+
+            <select id="type" required>
+
+                <option value="">
+                    Choisir
+                </option>
+
+                <option value="VIP">
+                    VIP
+                </option>
+
+                <option value="Famille">
+                    Famille
+                </option>
+
+                <option value="Amis">
+                    Amis
+                </option>
+
+                <option value="Collègues">
+                    Collègues
+                </option>
+
+                <option value="Standard">
+                    Standard
+                </option>
+
+            </select>
+
+
+            <label>Table</label>
+
+            <input
+                type="text"
+                id="table"
+                placeholder="Exemple : Table 12"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="primary"
+            >
+                Générer l'invitation
+            </button>
+
+        </form>
+
+
+        <div id="qrCreation"></div>
+
+        <div id="message"></div>
+
+    </div>
+
+</section>
+
+
+<section id="liste" class="page">
+
+    <div class="card">
+
+        <h2>Invitations enregistrées</h2>
+
+        <div id="listeInvitations">
+            Chargement...
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
+<script>
+const MOT_DE_PASSE_SITE = "123sar456ent";
+const CLE_ACCES = "mariage_site_access";
+
+
+function chargerApplication() {
+
+    document.getElementById("passwordGate").style.display = "none";
+
+    document.getElementById("siteApp").style.display = "block";
+
+    const script = document.createElement("script");
+
+    script.type = "module";
+
+    script.src = "script.js";
+
+    document.body.appendChild(script);
+}
+
+
+// Vérifier si l'utilisateur est déjà connecté
+if (sessionStorage.getItem(CLE_ACCES) === "1") {
+
+    chargerApplication();
+
+}
+
+
+// Vérification du mot de passe
+document.getElementById("passwordForm").addEventListener("submit", function(e) {
+
+    e.preventDefault();
+
+    const password =
+        document.getElementById("sitePassword").value;
+
+    const error =
+        document.getElementById("passwordError");
+
+
+    if (password === MOT_DE_PASSE_SITE) {
+
+        sessionStorage.setItem(CLE_ACCES, "1");
+
+        chargerApplication();
+
+    } else {
+
+        error.textContent =
+            "Mot de passe incorrect.";
+
+        document.getElementById("sitePassword").value = "";
+
+        document.getElementById("sitePassword").focus();
+
+    }
+
+});
+</script>
+
+</body>
+</html>
